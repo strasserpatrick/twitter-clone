@@ -3,7 +3,9 @@ from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr, constr
 
-from src.amseln.app import MAX_COMMENT_LENGTH, MAX_CONTENT_LENGTH
+from amseln.models.settings import Settings
+
+settings = Settings()
 
 
 class User(BaseModel):
@@ -15,7 +17,7 @@ class User(BaseModel):
 class Post(BaseModel):
     post_id: str
     timestamp: datetime
-    content: Optional[constr(max_length=MAX_CONTENT_LENGTH)]
+    content: Optional[constr(max_length=settings.max_content_length)]
     likes: List[User.username]
     number_of_comments: int
 
@@ -25,4 +27,4 @@ class Comment(BaseModel):
     timestamp: datetime
     post_id: Post.post_id
     username: User.username
-    content: Optional[constr(max_length=MAX_COMMENT_LENGTH)]
+    content: Optional[constr(max_length=settings.max_comment_length)]
