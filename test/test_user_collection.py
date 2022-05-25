@@ -56,6 +56,7 @@ def test_update_user(get_db):
     response = get_db.update_user(new_user)
     assert response.acknowledged
     assert response.raw_result["updatedExisting"]
+    assert get_db.read_user(old_user.username) == new_user
 
 
 def test_update_user_not_found(get_db):

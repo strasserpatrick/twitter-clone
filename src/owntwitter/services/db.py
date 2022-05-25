@@ -90,7 +90,7 @@ class DatabaseConnector:
                 timestamp=r["timestamp"],
                 content=r["content"],
                 likes=r["likes"],
-                number_of_comments=r["number_of_comments"]
+                number_of_comments=r["number_of_comments"],
             )
             for r in all_posts
         ]
@@ -103,12 +103,12 @@ class DatabaseConnector:
             raise PostNotFoundException()
 
         pydantic_post = Post(
-            post_id=post._id,
-            username=post.username,
-            timestamp=post.timestamp,
-            content=post.content,
-            likes=post.likes,
-            number_of_comments=post.number_of_comments,
+            post_id=post["_id"],
+            username=post["username"],
+            timestamp=post["timestamp"],
+            content=post["content"],
+            likes=post["likes"],
+            number_of_comments=post["number_of_comments"],
         )
 
         return pydantic_post
@@ -133,6 +133,8 @@ class DatabaseConnector:
     # =====================# COMMENTS #=====================#
 
     def create_new_comment(self, comment: Comment):
+        # add that post and user must exist
+
         comment_json = jsonable_encoder(comment)
         return self._comments.insert_one(comment_json)
 
@@ -144,7 +146,7 @@ class DatabaseConnector:
                 post_id=r["post_id"],
                 username=r["username"],
                 timestamp=r["timestamp"],
-                content=r["content"]
+                content=r["content"],
             )
             for r in response
         ]
@@ -159,7 +161,7 @@ class DatabaseConnector:
                 post_id=r["post_id"],
                 username=r["username"],
                 timestamp=r["timestamp"],
-                content=r["content"]
+                content=r["content"],
             )
             for r in response
         ]
