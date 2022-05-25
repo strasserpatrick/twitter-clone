@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, EmailStr, constr, Field
+from pydantic import BaseModel, EmailStr, Field, constr
 
 from owntwitter.models.settings import Settings
 
@@ -19,6 +19,7 @@ class User(BaseModel):
 
 class Post(BaseModel):
     post_id: str = Field(alias="_id")
+    username: str
     timestamp: datetime
     content: Optional[constr(max_length=settings.max_content_length)]
     likes: List[str]
@@ -30,9 +31,9 @@ class Post(BaseModel):
 
 class Comment(BaseModel):
     comment_id: str = Field(alias="_id")
-    timestamp: datetime
     post_id: str
     username: str
+    timestamp: datetime
     content: Optional[constr(max_length=settings.max_comment_length)]
 
     class Config:

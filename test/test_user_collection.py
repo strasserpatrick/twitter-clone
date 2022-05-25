@@ -2,7 +2,7 @@ import pytest as pytest
 from pymongo.errors import DuplicateKeyError
 
 from owntwitter.models.exceptions import UserNotFoundException
-from owntwitter.models.factories import UserFactory
+from owntwitter.models.factories import CommentFactory, PostFactory, UserFactory
 from owntwitter.services.db import DatabaseConnector
 
 
@@ -78,3 +78,34 @@ def test_delete_user(get_db):
 
     response = get_db.delete_user(user.username)
     assert response.acknowledged
+    assert response.deleted_count == 1
+
+
+def test_delete_user_not_found(get_db):
+    user = UserFactory.build()
+    response = get_db.delete_user(user.username)
+
+    assert response.acknowledged
+    assert response.deleted_count == 0
+
+
+def test_delete_user_trigger(get_db):
+    user = UserFactory.build()
+    get_db.create_new_user(user)
+
+    posts = PostFactory.batch(10)
+
+    for p in posts:
+        p.username = user.username
+        get_db.create_new_post(p)
+
+    comments = CommentFactory.batch(20)
+    for c in comments:
+        c.username = user.username
+        get_db.create_new_comment(c)
+
+    response = get_db.delete_user(user.username)
+    assert response.acknowledged
+    assert response.deleted_count == 1
+
+    assert len(get_db.read_posts_of_user(user.username)) == 0
