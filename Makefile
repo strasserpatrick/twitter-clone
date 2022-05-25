@@ -15,4 +15,4 @@ format-all: format-src format-tests
 # https://www.bmc.com/blogs/mongodb-docker-container/
 # docker compose for permanent volumes
 run-db:
-	docker run --name amseln-db -it
+	docker run --name mongo-db-twitter --rm -it -p 27017:27017 -v twitter-clone-db:/db mongo

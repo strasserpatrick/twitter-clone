@@ -1,1 +1,1 @@
-# Amseln Twitter Clone
+# Twitter Clone

@@ -14,8 +14,8 @@ py==1.11.0
 pycodestyle==2.8.0
 pydantic==1.9.1
 pyflakes==2.4.0
-pymongo @ file:///Users/runner/miniforge3/conda-bld/pymongo_1649944541740/work
 pyparsing==3.0.9
 termcolor==1.1.0
 tomli==2.0.1
 typing_extensions==4.2.0
+pymongo~=3.12.0
