@@ -1,5 +1,5 @@
 from amseln.models.settings import Settings
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     settings = Settings()
     print()

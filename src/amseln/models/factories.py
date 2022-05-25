@@ -1,6 +1,6 @@
 from pydantic_factories import ModelFactory
 
-from amseln.models.models import User, Post, Comment
+from amseln.models.models import Comment, Post, User
 
 
 class UserFactory(ModelFactory):
