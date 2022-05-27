@@ -16,3 +16,6 @@ format-all: format-src format-tests
 # docker compose for permanent volumes
 run-db:
 	docker run --name mongo-db-twitter --rm -it -p 27017:27017 -v twitter-clone-db:/db mongo
+
+fill-db:
+	typer ./scripts/twitter_cli.py

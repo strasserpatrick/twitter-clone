@@ -9,11 +9,6 @@ from owntwitter.models.exceptions import (
 from owntwitter.models.models import Comment, Post, User
 from owntwitter.models.settings import Settings
 
-if __name__ == "__main__":
-    settings = Settings()
-    client = MongoClient(f"{settings.mongo_db_url}:{settings.mongo_db_port}")
-    db = client.twitter
-
 
 class DatabaseConnector:
     def __init__(self):
