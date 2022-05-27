@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi.encoders import jsonable_encoder
 from pymongo import MongoClient
 
@@ -112,7 +114,7 @@ class DatabaseConnector:
 
         return pydantic_post
 
-    def read_recent_posts(self, count=10):
+    def read_recent_posts(self, count=10) -> List[Post]:
         posts = list(self._posts.find().sort("timestamp", -1).limit(count))
         if not posts:
             raise PostNotFoundException()

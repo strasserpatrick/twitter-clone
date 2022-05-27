@@ -9,7 +9,6 @@ from owntwitter.services.db import DatabaseConnector
 router = APIRouter(prefix="/api")
 
 
-@functools.lru_cache()
 def get_db_service():
     return DatabaseConnector()
 
@@ -42,5 +41,3 @@ async def get_user_posts(username, db: DatabaseConnector = Depends(get_db_servic
 @router.get("/posts/{post_id}/comments", response_model=List[Comment])
 async def get_comments_of_post(post_id, db: DatabaseConnector = Depends(get_db_service)):
     return db.read_comments_of_post(post_id)
-
-
