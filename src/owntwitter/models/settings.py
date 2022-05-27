@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     max_comment_length: int
     mongo_db_url: str
     mongo_db_port: int
+    uvicorn_port: int
     root_path: str = str(ROOT_PATH)
 
     class Config:

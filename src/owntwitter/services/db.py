@@ -117,6 +117,27 @@ class DatabaseConnector:
 
         return pydantic_post
 
+    def read_recent_posts(self, count=10):
+        posts = list(self._posts.find().sort("timestamp", -1).limit(count))
+        if not posts:
+            raise PostNotFoundException()
+
+        pydantic_posts = [
+            Post(
+                post_id=post["_id"],
+                username=post["username"],
+                timestamp=post["timestamp"],
+                content=post["content"],
+                likes=post["likes"],
+                number_of_comments=post["number_of_comments"],
+            )
+            for post in posts
+        ]
+
+        return pydantic_posts
+
+        # https://stackoverflow.com/questions/24501756/sort-mongodb-documents-by-timestamp-in-desc-order
+
     def update_post(self, new_post):
         # verify that username does not change
         return self._posts.replace_one(

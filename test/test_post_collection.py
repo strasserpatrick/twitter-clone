@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 
 from owntwitter.models.exceptions import PostNotFoundException, UserNotFoundException
@@ -69,6 +71,20 @@ def test_read_post_not_found(get_db):
     post = PostFactory.build()
     with pytest.raises(PostNotFoundException):
         get_db.read_post(post.post_id)
+
+
+def test_read_recent_posts(get_db):
+    user = UserFactory.build()
+    get_db.create_new_user(user)
+    posts = PostFactory.batch(100)
+    for p in posts:
+        p.timestamp = datetime.datetime.now()
+        p.username = user.username
+        get_db.create_new_post(p)
+
+    recent_posts = get_db.read_recent_posts(100)
+    for p in posts:
+        assert p in recent_posts
 
 
 def test_update_post(get_db):
