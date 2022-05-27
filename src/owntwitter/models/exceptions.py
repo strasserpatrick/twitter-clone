@@ -4,3 +4,7 @@ class UserNotFoundException(Exception):
 
 class PostNotFoundException(Exception):
     pass
+
+
+class CommentNotFoundException(Exception):
+    pass

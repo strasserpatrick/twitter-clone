@@ -96,7 +96,7 @@ def test_update_post_not_found(get_db):
     response = get_db.update_post(new_post)
 
     assert response.acknowledged
-    assert response.raw_result["updatedExisting"] is False
+    assert not response.raw_result["updatedExisting"]
 
     with pytest.raises(PostNotFoundException):
         get_db.read_post(post.post_id)
@@ -133,6 +133,7 @@ def test_delete_post_trigger(get_db):
 
     comments = CommentFactory.batch(20)
     for c in comments:
+        c.username = user.username
         c.post_id = post.post_id
         get_db.create_new_comment(c)
 

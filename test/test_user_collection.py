@@ -103,6 +103,7 @@ def test_delete_user_trigger(get_db):
     comments = CommentFactory.batch(20)
     for c in comments:
         c.username = user.username
+        c.post_id = posts[0].post_id
         get_db.create_new_comment(c)
 
     response = get_db.delete_user(user.username)

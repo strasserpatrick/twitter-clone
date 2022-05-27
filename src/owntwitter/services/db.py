@@ -1,7 +1,11 @@
 from fastapi.encoders import jsonable_encoder
 from pymongo import MongoClient
 
-from owntwitter.models.exceptions import PostNotFoundException, UserNotFoundException
+from owntwitter.models.exceptions import (
+    CommentNotFoundException,
+    PostNotFoundException,
+    UserNotFoundException,
+)
 from owntwitter.models.models import Comment, Post, User
 from owntwitter.models.settings import Settings
 
@@ -135,11 +139,32 @@ class DatabaseConnector:
     def create_new_comment(self, comment: Comment):
         # add that post and user must exist
 
+        # check if user in db
+        self.read_user(comment.username)
+        self.read_post(comment.post_id)
+
         comment_json = jsonable_encoder(comment)
         return self._comments.insert_one(comment_json)
 
+    def read_comment(self, comment_id: str):
+        response = list(self._comments.find({"_id": comment_id}))
+
+        if not response:
+            raise CommentNotFoundException()
+
+        r = response.pop()
+
+        return Comment(
+            comment_id=r["_id"],
+            post_id=r["post_id"],
+            username=r["username"],
+            timestamp=r["timestamp"],
+            content=r["content"],
+        )
+
     def read_comments_of_post(self, post_id: str):
         response = list(self._comments.find({"post_id": post_id}))
+
         comment_list = [
             Comment(
                 comment_id=r["_id"],
