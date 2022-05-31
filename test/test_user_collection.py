@@ -15,7 +15,7 @@ def test_create_new_user(get_db):
     user = UserFactory.build()
     res = get_db.create_new_user(user)
 
-    assert res.acknowledged == True
+    assert res.acknowledged
     assert res.inserted_id == user.username
 
 
@@ -23,7 +23,7 @@ def test_create_duplicate(get_db):
     user = UserFactory.build()
     res = get_db.create_new_user(user)
 
-    assert res.acknowledged == True
+    assert res.acknowledged
     assert res.inserted_id == user.username
 
     # Insert duplicate

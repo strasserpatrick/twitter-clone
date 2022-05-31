@@ -2,6 +2,7 @@ import functools
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from pymongo.errors import DuplicateKeyError
 
 from owntwitter.models.exceptions import PostNotFoundException, UserNotFoundException
 from owntwitter.models.models import Comment, Post, User
@@ -12,6 +13,8 @@ router = APIRouter(prefix="/api")
 
 def get_db_service():
     return DatabaseConnector()
+
+###### GET REQUESTS ######
 
 
 @router.get("/")
@@ -71,3 +74,12 @@ async def get_likes_of_post(
         raise HTTPException(status_code=404, detail="Post not found")
     except UserNotFoundException:
         raise HTTPException(status_code=404, detail="User not found")
+
+##### POST REQUESTS #####
+
+@router.post("/create/user")
+async def create_user(user: User, db: DatabaseConnector = Depends(get_db_service)):
+    try:
+        res = db.create_new_user(user)
+    except DuplicateKeyError:
+        raise HTTPException(status_code=404, detail="User already exists")

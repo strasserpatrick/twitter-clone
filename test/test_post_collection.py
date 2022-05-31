@@ -133,10 +133,9 @@ def test_delete_post(get_db):
 
 def test_delete_post_not_found(get_db):
     post = PostFactory.build()
-    response = get_db.delete_post(post.post_id)
 
-    assert response.acknowledged
-    assert response.deleted_count == 0
+    with pytest.raises(PostNotFoundException):
+        get_db.delete_post(post.post_id)
 
 
 def test_delete_post_trigger(get_db):
@@ -157,4 +156,5 @@ def test_delete_post_trigger(get_db):
     assert response.acknowledged
     assert response.deleted_count == 1
 
-    assert len(get_db.read_comments_of_post(post.post_id)) == 0
+    with pytest.raises(PostNotFoundException):
+        get_db.read_comments_of_post(post.post_id)

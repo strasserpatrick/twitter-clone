@@ -2,7 +2,7 @@ from typing import List
 
 import pytest
 
-from owntwitter.models.exceptions import CommentNotFoundException, UserNotFoundException
+from owntwitter.models.exceptions import CommentNotFoundException, UserNotFoundException, PostNotFoundException
 from owntwitter.models.factories import CommentFactory, PostFactory, UserFactory
 from owntwitter.models.models import Comment
 from owntwitter.services.db import DatabaseConnector
@@ -82,8 +82,8 @@ def test_read_comments_of_post(get_db):
 def test_read_comments_of_post_not_found(get_db):
     post = PostFactory.build()
 
-    res = get_db.read_comments_of_post(post.post_id)
-    assert not res
+    with pytest.raises(PostNotFoundException):
+        get_db.read_comments_of_post(post.post_id)
 
 
 def test_read_comments_of_user(get_db):

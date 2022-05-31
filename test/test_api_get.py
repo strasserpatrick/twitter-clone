@@ -25,20 +25,18 @@ def client():
 def db_service_dependency_override():
     mock = MagicMock(spec=DatabaseConnector)
 
-    # mock adjustment here
-    mock.read_recent_posts.return_value = PostFactory.batch(20)
-
     app.dependency_overrides[get_db_service] = lambda: mock
     return mock
 
 
-def test_feed_endpoint(db_service_dependency_override):
-    r = requests.get(url + "/feed")
+def test_feed_endpoint(client, db_service_dependency_override):
 
-    post_list = [Post(**post_dict) for post_dict in r.json()]
+    db_service_dependency_override.read_recent_posts.return_value = PostFactory.batch(20)
+
+    r = client.get(url + "/feed")
 
     assert r.status_code == 200
-    assert len(post_list) == 20
+    assert len(r.json()) == 20
 
 
 def test_get_post(client, db_service_dependency_override):
@@ -120,6 +118,7 @@ def test_get_comments_of_post_not_found(client, db_service_dependency_override):
     r = client.get(url + f"/posts/{post.post_id}/comments")
     assert r.status_code == 404
 
+
 def test_get_users_of_likes(client, db_service_dependency_override):
     post = PostFactory.build()
     liked_usernames = [u.username for u in UserFactory.batch(10)]
@@ -140,6 +139,7 @@ def test_get_users_of_likes_post_not_found(client, db_service_dependency_overrid
     r = client.get(url + f"/posts/{post.post_id}/likes")
     assert r.status_code == 404
     assert r.json()['detail'] == 'Post not found'
+
 
 def test_get_users_of_likes_user_not_found(client, db_service_dependency_override):
     post = PostFactory.build()

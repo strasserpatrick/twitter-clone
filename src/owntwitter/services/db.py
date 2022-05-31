@@ -146,13 +146,14 @@ class DatabaseConnector:
         )
 
     def delete_post(self, post_id):
-        response = self._posts.delete_one({"_id": post_id})
 
         # trigger to delete all comments of post
         comments = self.read_comments_of_post(post_id)
 
         for c in comments:
             self._comments.delete_one({"_id": c.comment_id})
+
+        response = self._posts.delete_one({"_id": post_id})
 
         return response
 
