@@ -185,8 +185,10 @@ class DatabaseConnector:
         )
 
     def read_comments_of_post(self, post_id: str):
-        response = list(self._comments.find({"post_id": post_id}))
+        # check if post exists; possibly throws post_not_found exception
+        self.read_post(post_id)
 
+        response = list(self._comments.find({"post_id": post_id}))
         comment_list = [
             Comment(
                 comment_id=r["_id"],

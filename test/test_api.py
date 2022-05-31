@@ -7,7 +7,7 @@ from starlette.testclient import TestClient
 from owntwitter.api.endpoints import get_db_service
 from owntwitter.app import app
 from owntwitter.models.exceptions import PostNotFoundException, UserNotFoundException
-from owntwitter.models.factories import PostFactory, UserFactory
+from owntwitter.models.factories import PostFactory, UserFactory, CommentFactory
 from owntwitter.models.models import Post
 from owntwitter.models.settings import Settings
 from owntwitter.services.db import DatabaseConnector
@@ -97,3 +97,55 @@ def test_get_users_posts_no_posts(client, db_service_dependency_override):
 
     r = client.get(url + f"/users/{user.username}/posts")
     assert r.status_code == 404
+
+
+def test_get_comments_of_post(client, db_service_dependency_override):
+    post = PostFactory.build()
+
+    comments = CommentFactory.batch(10)
+    for c in comments:
+        c.post_id = post.post_id
+
+    db_service_dependency_override.read_comments_of_post.return_value = comments
+
+    r = client.get(url + f"/posts/{post.post_id}/comments")
+    assert r.status_code == 200
+    assert len(r.json()) == 10
+
+
+def test_get_comments_of_post_not_found(client, db_service_dependency_override):
+    post = PostFactory.build()
+    db_service_dependency_override.read_comments_of_post.side_effect = PostNotFoundException
+
+    r = client.get(url + f"/posts/{post.post_id}/comments")
+    assert r.status_code == 404
+
+def test_get_users_of_likes(client, db_service_dependency_override):
+    post = PostFactory.build()
+    liked_usernames = [u.username for u in UserFactory.batch(10)]
+    post.likes = liked_usernames
+
+    db_service_dependency_override.read_post.return_value = post
+    db_service_dependency_override.read_user.return_value = UserFactory.build()
+
+    r = client.get(url + f"/posts/{post.post_id}/likes")
+    assert r.status_code == 200
+    assert len(r.json()) == 10
+
+
+def test_get_users_of_likes_post_not_found(client, db_service_dependency_override):
+    post = PostFactory.build()
+    db_service_dependency_override.read_post.side_effect = PostNotFoundException
+
+    r = client.get(url + f"/posts/{post.post_id}/likes")
+    assert r.status_code == 404
+    assert r.json()['detail'] == 'Post not found'
+
+def test_get_users_of_likes_user_not_found(client, db_service_dependency_override):
+    post = PostFactory.build()
+    db_service_dependency_override.read_post.side_effect = UserNotFoundException
+
+    r = client.get(url + f"/posts/{post.post_id}/likes")
+    assert r.status_code == 404
+    assert r.json()['detail'] == 'User not found'
+

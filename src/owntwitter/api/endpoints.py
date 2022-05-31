@@ -52,4 +52,22 @@ async def get_user_posts(username, db: DatabaseConnector = Depends(get_db_servic
 async def get_comments_of_post(
     post_id, db: DatabaseConnector = Depends(get_db_service)
 ):
-    return db.read_comments_of_post(post_id)
+    try:
+        return db.read_comments_of_post(post_id)
+    except PostNotFoundException:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+
+@router.get("/posts/{post_id}/likes", response_model=List[User])
+async def get_likes_of_post(
+        post_id, db: DatabaseConnector = Depends(get_db_service)
+):
+    try:
+        post = db.read_post(post_id)
+        usernames_of_likes = post.likes
+        return [db.read_user(u) for u in usernames_of_likes]
+
+    except PostNotFoundException:
+        raise HTTPException(status_code=404, detail="Post not found")
+    except UserNotFoundException:
+        raise HTTPException(status_code=404, detail="User not found")
