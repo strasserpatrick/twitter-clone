@@ -54,7 +54,7 @@ async def get_user_posts(username, db: DatabaseConnector = Depends(get_db_servic
 
 @router.get("/posts/{post_id}/comments", response_model=List[Comment])
 async def get_comments_of_post(
-    post_id, db: DatabaseConnector = Depends(get_db_service)
+        post_id, db: DatabaseConnector = Depends(get_db_service)
 ):
     try:
         return db.read_comments_of_post(post_id)
@@ -95,3 +95,15 @@ async def create_post(post: Post, db: DatabaseConnector = Depends(get_db_service
         raise HTTPException(status_code=404, detail="Post already exists")
     except UserNotFoundException:
         raise HTTPException(status_code=404, detail="User not found")
+
+
+@router.post("/create/comment", status_code=201)
+async def create_comment(comment: Comment, db: DatabaseConnector = Depends(get_db_service)):
+    try:
+        db.create_new_comment(comment)
+    except DuplicateKeyError:
+        raise HTTPException(status_code=404, detail="Comment already exists")
+    except UserNotFoundException:
+        raise HTTPException(status_code=404, detail="User not found")
+    except PostNotFoundException:
+        raise HTTPException(status_code=404, detail="Post not found")

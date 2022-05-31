@@ -162,7 +162,7 @@ class DatabaseConnector:
     def create_new_comment(self, comment: Comment):
         # add that post and user must exist
 
-        # check if user in db
+        # check if user and post in db
         self.read_user(comment.username)
         self.read_post(comment.post_id)
 

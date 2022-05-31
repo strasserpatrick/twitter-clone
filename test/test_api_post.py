@@ -2,8 +2,8 @@ from fastapi.encoders import jsonable_encoder
 from pymongo.errors import DuplicateKeyError
 
 from conftest import url
-from owntwitter.models.exceptions import UserNotFoundException
-from owntwitter.models.factories import UserFactory, PostFactory
+from owntwitter.models.exceptions import UserNotFoundException, PostNotFoundException
+from owntwitter.models.factories import UserFactory, PostFactory, CommentFactory
 
 
 def test_create_user(client, db_service_dependency_override):
@@ -50,4 +50,32 @@ def test_create_post_user_not_found(client, db_service_dependency_override):
     post_json = jsonable_encoder(post)
 
     r = client.post(url + f"/create/post", json=post_json)
+    assert r.status_code == 404
+
+
+def test_create_comment(client, db_service_dependency_override):
+    comment = CommentFactory.build()
+    comment_json = jsonable_encoder(comment)
+
+    r = client.post(url + f"/create/comment", json=comment_json)
+    assert r.status_code == 201
+
+
+def test_create_comment_user_not_found(client, db_service_dependency_override):
+    db_service_dependency_override.create_new_comment.side_effect = UserNotFoundException
+
+    comment = CommentFactory.build()
+    comment_json = jsonable_encoder(comment)
+
+    r = client.post(url + f"/create/comment", json=comment_json)
+    assert r.status_code == 404
+
+
+def test_create_comment_post_not_found(client, db_service_dependency_override):
+    db_service_dependency_override.create_new_comment.side_effect = PostNotFoundException
+
+    comment = CommentFactory.build()
+    comment_json = jsonable_encoder(comment)
+
+    r = client.post(url + f"/create/comment", json=comment_json)
     assert r.status_code == 404
