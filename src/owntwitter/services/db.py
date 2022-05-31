@@ -56,7 +56,6 @@ class DatabaseConnector:
         )
 
     def delete_user(self, username):
-        response = self._users.delete_one({"_id": username})
 
         # trigger to delete all posts of user
         posts = self.read_posts_of_user(username)
@@ -69,6 +68,8 @@ class DatabaseConnector:
 
         for c in comments:
             self._comments.delete_one({"_id": c.comment_id})
+
+        response = self._users.delete_one({"_id": username})
 
         return response
 
@@ -83,6 +84,9 @@ class DatabaseConnector:
         return self._posts.insert_one(post_json)
 
     def read_posts_of_user(self, username: str):
+        # check if user in db; possibly throws user not found exception
+        self.read_user(username)
+
         all_posts = list(self._posts.find({"username": username}))
         post_list = [
             Post(

@@ -45,8 +45,8 @@ def test_read_posts_of_user(get_db):
 
 def test_read_posts_user_not_found(get_db):
     user = UserFactory.build()
-    post_list = get_db.read_posts_of_user(user.username)
-    assert post_list == []
+    with pytest.raises(UserNotFoundException):
+        get_db.read_posts_of_user(user.username)
 
 
 def test_read_posts_no_posts(get_db):

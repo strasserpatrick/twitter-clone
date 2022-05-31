@@ -84,10 +84,8 @@ def test_delete_user(get_db):
 
 def test_delete_user_not_found(get_db):
     user = UserFactory.build()
-    response = get_db.delete_user(user.username)
-
-    assert response.acknowledged
-    assert response.deleted_count == 0
+    with pytest.raises(UserNotFoundException):
+        get_db.delete_user(user.username)
 
 
 def test_delete_user_trigger(get_db):
@@ -110,4 +108,5 @@ def test_delete_user_trigger(get_db):
     assert response.acknowledged
     assert response.deleted_count == 1
 
-    assert len(get_db.read_posts_of_user(user.username)) == 0
+    with pytest.raises(UserNotFoundException):
+        get_db.read_user(user.username)
