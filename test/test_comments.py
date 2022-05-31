@@ -172,3 +172,50 @@ def test_update_comment_not_found(get_db):
 
     with pytest.raises(CommentNotFoundException):
         get_db.read_comment(comment.comment_id)
+
+
+def test_delete_comment(get_db):
+    user = UserFactory.build()
+    get_db.create_new_user(user)
+
+    post = PostFactory.build()
+    post.username = user.username
+    get_db.create_new_post(post)
+
+    comment = CommentFactory.build()
+    comment.username = user.username
+    comment.post_id = post.post_id
+    get_db.create_new_comment(comment)
+
+    response = get_db.delete_comment(comment.comment_id)
+
+    assert response.acknowledged
+    assert response.deleted_count == 1
+
+    with pytest.raises(CommentNotFoundException):
+        get_db.read_comment(comment.comment_id)
+
+
+def test_delete_comment_not_in_db(get_db):
+    user = UserFactory.build()
+    get_db.create_new_user(user)
+
+    post = PostFactory.build()
+    post.username = user.username
+    get_db.create_new_post(post)
+
+    comment = CommentFactory.build()
+    comment.username = user.username
+    comment.post_id = post.post_id
+    get_db.create_new_comment(comment)
+
+    response = get_db.delete_comment(comment.comment_id)
+
+    assert response.acknowledged
+    assert response.deleted_count == 1
+
+    with pytest.raises(CommentNotFoundException):
+        get_db.read_comment(comment.comment_id)
+
+    with pytest.raises(CommentNotFoundException):
+        get_db.delete_comment(comment.comment_id)

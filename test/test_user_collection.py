@@ -53,10 +53,9 @@ def test_update_user(get_db):
     new_user = UserFactory.build()
     new_user.username = old_user.username
 
-    response = get_db.update_user(new_user)
-    assert response.acknowledged
-    assert response.raw_result["updatedExisting"]
-    assert get_db.read_user(old_user.username) == new_user
+    with pytest.raises(UserNotFoundException):
+        get_db.update_user(new_user)
+
 
 
 def test_update_user_not_found(get_db):

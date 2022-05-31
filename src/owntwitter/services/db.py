@@ -51,6 +51,9 @@ class DatabaseConnector:
 
     def update_user(self, new_user):
 
+        # check if user in db; potentially throws UserNotFoundException
+        self.read_user(new_user.username)
+
         return self._users.replace_one(
             {"_id": new_user.username}, jsonable_encoder(new_user)
         )
@@ -78,7 +81,7 @@ class DatabaseConnector:
     def create_new_post(self, post: Post):
 
         # check if user in db
-        user = self.read_user(post.username)
+        self.read_user(post.username)
 
         post_json = jsonable_encoder(post)
         return self._posts.insert_one(post_json)
@@ -222,3 +225,8 @@ class DatabaseConnector:
         return self._comments.replace_one(
             {"_id": new_comment.comment_id}, jsonable_encoder(new_comment)
         )
+
+    def delete_comment(self, comment_id):
+        self.read_comment(comment_id) # check if comment exists
+
+        return self._comments.delete_one({"_id": comment_id})

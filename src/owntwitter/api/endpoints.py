@@ -4,7 +4,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pymongo.errors import DuplicateKeyError
 
-from owntwitter.models.exceptions import PostNotFoundException, UserNotFoundException
+from owntwitter.models.exceptions import PostNotFoundException, UserNotFoundException, CommentNotFoundException
 from owntwitter.models.models import Comment, Post, User
 from owntwitter.services.db import DatabaseConnector
 
@@ -15,7 +15,7 @@ def get_db_service():
     return DatabaseConnector()
 
 
-###### GET REQUESTS ######
+###### READ ######
 
 
 @router.get("/")
@@ -75,7 +75,7 @@ async def get_likes_of_post(post_id, db: DatabaseConnector = Depends(get_db_serv
         raise HTTPException(status_code=404, detail="User not found")
 
 
-##### POST REQUESTS #####
+##### CREATE #####
 
 
 @router.post("/create/user", status_code=201)
@@ -107,3 +107,67 @@ async def create_comment(comment: Comment, db: DatabaseConnector = Depends(get_d
         raise HTTPException(status_code=404, detail="User not found")
     except PostNotFoundException:
         raise HTTPException(status_code=404, detail="Post not found")
+
+
+##### UPDATE ENDPOINTS ######
+
+@router.put("/update/user", status_code=202)
+async def update_user(new_user: User, db: DatabaseConnector = Depends(get_db_service)):
+    try:
+        db.update_user(new_user)
+    except UserNotFoundException:
+        raise HTTPException(status_code=404, detail="User not found")
+
+
+@router.put("/update/post", status_code=202)
+async def update_user(new_post: Post, db: DatabaseConnector = Depends(get_db_service)):
+    try:
+        db.update_post(new_post)
+    except UserNotFoundException:
+        raise HTTPException(status_code=404, detail="User not found")
+    except PostNotFoundException:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+
+@router.put("/update/comment", status_code=202)
+async def update_user(new_comment: Post, db: DatabaseConnector = Depends(get_db_service)):
+    try:
+        db.update_comment(new_comment)
+    except UserNotFoundException:
+        raise HTTPException(status_code=404, detail="User not found")
+    except PostNotFoundException:
+        raise HTTPException(status_code=404, detail="Post not found")
+    except CommentNotFoundException:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+
+##### DELETE ENDPOINTS #####
+
+@router.post("/delete/user/{username}", status_code=203)
+async def delete_user(username: str, db: DatabaseConnector = Depends(get_db_service)):
+    try:
+        db.delete_user(username)
+    except UserNotFoundException:
+        raise HTTPException(status_code=404, detail="User not found")
+
+
+@router.post("/delete/post/{post_id}", status_code=203)
+async def delete_post(post_id: str, db: DatabaseConnector = Depends(get_db_service)):
+    try:
+        db.delete_post(post_id)
+    except UserNotFoundException:
+        raise HTTPException(status_code=404, detail="User not found")
+    except PostNotFoundException:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+
+@router.post("/delete/comment/{comment_id}", status_code=203)
+async def delete_comment(comment_id: str, db: DatabaseConnector = Depends(get_db_service)):
+    try:
+        db.delete_comment(comment_id)
+    except UserNotFoundException:
+        raise HTTPException(status_code=404, detail="User not found")
+    except PostNotFoundException:
+        raise HTTPException(status_code=404, detail="Post not found")
+    except CommentNotFoundException:
+        raise HTTPException(status_code=404, detail="Comment not found")
