@@ -1,9 +1,9 @@
+from conftest import url
 from fastapi.encoders import jsonable_encoder
 from pymongo.errors import DuplicateKeyError
 
-from conftest import url
-from owntwitter.models.exceptions import UserNotFoundException, PostNotFoundException
-from owntwitter.models.factories import UserFactory, PostFactory, CommentFactory
+from owntwitter.models.exceptions import PostNotFoundException, UserNotFoundException
+from owntwitter.models.factories import CommentFactory, PostFactory, UserFactory
 
 
 def test_create_user(client, db_service_dependency_override):
@@ -15,7 +15,9 @@ def test_create_user(client, db_service_dependency_override):
 
 
 def test_create_user_exists(client, db_service_dependency_override):
-    db_service_dependency_override.create_new_user.side_effect = DuplicateKeyError("error")
+    db_service_dependency_override.create_new_user.side_effect = DuplicateKeyError(
+        "error"
+    )
 
     user = UserFactory.build()
     user_json = jsonable_encoder(user)
@@ -34,7 +36,9 @@ def test_create_post(client, db_service_dependency_override):
 
 
 def test_create_post_duplicate(client, db_service_dependency_override):
-    db_service_dependency_override.create_new_post.side_effect = DuplicateKeyError("error")
+    db_service_dependency_override.create_new_post.side_effect = DuplicateKeyError(
+        "error"
+    )
 
     post = PostFactory.build()
     post_json = jsonable_encoder(post)
@@ -62,7 +66,9 @@ def test_create_comment(client, db_service_dependency_override):
 
 
 def test_create_comment_user_not_found(client, db_service_dependency_override):
-    db_service_dependency_override.create_new_comment.side_effect = UserNotFoundException
+    db_service_dependency_override.create_new_comment.side_effect = (
+        UserNotFoundException
+    )
 
     comment = CommentFactory.build()
     comment_json = jsonable_encoder(comment)
@@ -72,7 +78,9 @@ def test_create_comment_user_not_found(client, db_service_dependency_override):
 
 
 def test_create_comment_post_not_found(client, db_service_dependency_override):
-    db_service_dependency_override.create_new_comment.side_effect = PostNotFoundException
+    db_service_dependency_override.create_new_comment.side_effect = (
+        PostNotFoundException
+    )
 
     comment = CommentFactory.build()
     comment_json = jsonable_encoder(comment)

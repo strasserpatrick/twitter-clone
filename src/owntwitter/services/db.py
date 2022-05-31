@@ -227,6 +227,6 @@ class DatabaseConnector:
         )
 
     def delete_comment(self, comment_id):
-        self.read_comment(comment_id) # check if comment exists
+        self.read_comment(comment_id)  # check if comment exists
 
         return self._comments.delete_one({"_id": comment_id})

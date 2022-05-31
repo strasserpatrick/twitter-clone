@@ -24,6 +24,7 @@ def test_create_new_post(get_db):
     assert res.acknowledged
     assert res.inserted_id == post.post_id
 
+
 def test_create_new_post_duplicate(get_db):
     user = UserFactory.build()
     get_db.create_new_user(user)
@@ -37,7 +38,6 @@ def test_create_new_post_duplicate(get_db):
 
     with pytest.raises(DuplicateKeyError):
         get_db.create_new_post(post)
-
 
 
 def test_create_new_post_user_not_found(get_db):

@@ -4,7 +4,11 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pymongo.errors import DuplicateKeyError
 
-from owntwitter.models.exceptions import PostNotFoundException, UserNotFoundException, CommentNotFoundException
+from owntwitter.models.exceptions import (
+    CommentNotFoundException,
+    PostNotFoundException,
+    UserNotFoundException,
+)
 from owntwitter.models.models import Comment, Post, User
 from owntwitter.services.db import DatabaseConnector
 
@@ -54,7 +58,7 @@ async def get_user_posts(username, db: DatabaseConnector = Depends(get_db_servic
 
 @router.get("/posts/{post_id}/comments", response_model=List[Comment])
 async def get_comments_of_post(
-        post_id, db: DatabaseConnector = Depends(get_db_service)
+    post_id, db: DatabaseConnector = Depends(get_db_service)
 ):
     try:
         return db.read_comments_of_post(post_id)
@@ -98,7 +102,9 @@ async def create_post(post: Post, db: DatabaseConnector = Depends(get_db_service
 
 
 @router.post("/create/comment", status_code=201)
-async def create_comment(comment: Comment, db: DatabaseConnector = Depends(get_db_service)):
+async def create_comment(
+    comment: Comment, db: DatabaseConnector = Depends(get_db_service)
+):
     try:
         db.create_new_comment(comment)
     except DuplicateKeyError:
@@ -111,6 +117,7 @@ async def create_comment(comment: Comment, db: DatabaseConnector = Depends(get_d
 
 ##### UPDATE ENDPOINTS ######
 
+
 @router.put("/update/user", status_code=202)
 async def update_user(new_user: User, db: DatabaseConnector = Depends(get_db_service)):
     try:
@@ -120,7 +127,7 @@ async def update_user(new_user: User, db: DatabaseConnector = Depends(get_db_ser
 
 
 @router.put("/update/post", status_code=202)
-async def update_user(new_post: Post, db: DatabaseConnector = Depends(get_db_service)):
+async def update_post(new_post: Post, db: DatabaseConnector = Depends(get_db_service)):
     try:
         db.update_post(new_post)
     except UserNotFoundException:
@@ -130,7 +137,9 @@ async def update_user(new_post: Post, db: DatabaseConnector = Depends(get_db_ser
 
 
 @router.put("/update/comment", status_code=202)
-async def update_user(new_comment: Post, db: DatabaseConnector = Depends(get_db_service)):
+async def update_comment(
+    new_comment: Comment, db: DatabaseConnector = Depends(get_db_service)
+):
     try:
         db.update_comment(new_comment)
     except UserNotFoundException:
@@ -142,6 +151,7 @@ async def update_user(new_comment: Post, db: DatabaseConnector = Depends(get_db_
 
 
 ##### DELETE ENDPOINTS #####
+
 
 @router.post("/delete/user/{username}", status_code=203)
 async def delete_user(username: str, db: DatabaseConnector = Depends(get_db_service)):
@@ -162,7 +172,9 @@ async def delete_post(post_id: str, db: DatabaseConnector = Depends(get_db_servi
 
 
 @router.post("/delete/comment/{comment_id}", status_code=203)
-async def delete_comment(comment_id: str, db: DatabaseConnector = Depends(get_db_service)):
+async def delete_comment(
+    comment_id: str, db: DatabaseConnector = Depends(get_db_service)
+):
     try:
         db.delete_comment(comment_id)
     except UserNotFoundException:

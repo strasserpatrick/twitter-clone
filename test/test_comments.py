@@ -35,6 +35,7 @@ def test_create_comment(get_db):
     assert res.acknowledged
     assert res.inserted_id == comment.comment_id
 
+
 def test_create_comment_duplicate(get_db):
     user = UserFactory.build()
     get_db.create_new_user(user)
