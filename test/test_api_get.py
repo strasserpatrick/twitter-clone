@@ -1,37 +1,13 @@
-from unittest.mock import MagicMock
+from conftest import url
 
-import pytest
-import requests
-from starlette.testclient import TestClient
-
-from owntwitter.api.endpoints import get_db_service
-from owntwitter.app import app
 from owntwitter.models.exceptions import PostNotFoundException, UserNotFoundException
-from owntwitter.models.factories import PostFactory, UserFactory, CommentFactory
-from owntwitter.models.models import Post
-from owntwitter.models.settings import Settings
-from owntwitter.services.db import DatabaseConnector
-
-settings = Settings()
-url = f"http://localhost:{settings.uvicorn_port}/api"
-
-
-@pytest.fixture
-def client():
-    return TestClient(app)
-
-
-@pytest.fixture
-def db_service_dependency_override():
-    mock = MagicMock(spec=DatabaseConnector)
-
-    app.dependency_overrides[get_db_service] = lambda: mock
-    return mock
+from owntwitter.models.factories import CommentFactory, PostFactory, UserFactory
 
 
 def test_feed_endpoint(client, db_service_dependency_override):
-
-    db_service_dependency_override.read_recent_posts.return_value = PostFactory.batch(20)
+    db_service_dependency_override.read_recent_posts.return_value = PostFactory.batch(
+        20
+    )
 
     r = client.get(url + "/feed")
 
@@ -113,7 +89,9 @@ def test_get_comments_of_post(client, db_service_dependency_override):
 
 def test_get_comments_of_post_not_found(client, db_service_dependency_override):
     post = PostFactory.build()
-    db_service_dependency_override.read_comments_of_post.side_effect = PostNotFoundException
+    db_service_dependency_override.read_comments_of_post.side_effect = (
+        PostNotFoundException
+    )
 
     r = client.get(url + f"/posts/{post.post_id}/comments")
     assert r.status_code == 404
@@ -138,7 +116,7 @@ def test_get_users_of_likes_post_not_found(client, db_service_dependency_overrid
 
     r = client.get(url + f"/posts/{post.post_id}/likes")
     assert r.status_code == 404
-    assert r.json()['detail'] == 'Post not found'
+    assert r.json()["detail"] == "Post not found"
 
 
 def test_get_users_of_likes_user_not_found(client, db_service_dependency_override):
@@ -147,5 +125,4 @@ def test_get_users_of_likes_user_not_found(client, db_service_dependency_overrid
 
     r = client.get(url + f"/posts/{post.post_id}/likes")
     assert r.status_code == 404
-    assert r.json()['detail'] == 'User not found'
-
+    assert r.json()["detail"] == "User not found"

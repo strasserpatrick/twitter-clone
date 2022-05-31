@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from pymongo.errors import DuplicateKeyError
 
 from owntwitter.models.exceptions import PostNotFoundException, UserNotFoundException
 from owntwitter.models.factories import CommentFactory, PostFactory, UserFactory
@@ -22,6 +23,21 @@ def test_create_new_post(get_db):
 
     assert res.acknowledged
     assert res.inserted_id == post.post_id
+
+def test_create_new_post_duplicate(get_db):
+    user = UserFactory.build()
+    get_db.create_new_user(user)
+
+    post = PostFactory.build()
+    post.username = user.username
+    res = get_db.create_new_post(post)
+
+    assert res.acknowledged
+    assert res.inserted_id == post.post_id
+
+    with pytest.raises(DuplicateKeyError):
+        get_db.create_new_post(post)
+
 
 
 def test_create_new_post_user_not_found(get_db):

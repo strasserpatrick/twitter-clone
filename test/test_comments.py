@@ -1,8 +1,13 @@
 from typing import List
 
 import pytest
+from pymongo.errors import DuplicateKeyError
 
-from owntwitter.models.exceptions import CommentNotFoundException, UserNotFoundException, PostNotFoundException
+from owntwitter.models.exceptions import (
+    CommentNotFoundException,
+    PostNotFoundException,
+    UserNotFoundException,
+)
 from owntwitter.models.factories import CommentFactory, PostFactory, UserFactory
 from owntwitter.models.models import Comment
 from owntwitter.services.db import DatabaseConnector
@@ -29,6 +34,26 @@ def test_create_comment(get_db):
 
     assert res.acknowledged
     assert res.inserted_id == comment.comment_id
+
+def test_create_comment_duplicate(get_db):
+    user = UserFactory.build()
+    get_db.create_new_user(user)
+
+    post = PostFactory.build()
+    post.username = user.username
+    get_db.create_new_post(post)
+
+    comment = CommentFactory.build()
+    comment.username = user.username
+    comment.post_id = post.post_id
+
+    res = get_db.create_new_comment(comment)
+
+    assert res.acknowledged
+    assert res.inserted_id == comment.comment_id
+
+    with pytest.raises(DuplicateKeyError):
+        get_db.create_new_comment(comment)
 
 
 def test_create_comment_no_user_and_post(get_db):
